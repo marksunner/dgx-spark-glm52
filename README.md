@@ -1,21 +1,51 @@
 # DGX Spark Guides
 
-Practical guides for NVIDIA DGX Spark cluster deployments, written from real experience — actual shell history, actual bugs, actual 5 a.m. first tokens. Not lab-conditions documentation: these are the write-ups we wish had existed when our boxes were still full of foam.
+Practical, honest deployment guides for NVIDIA DGX Spark clusters — written from real hardware, real mistakes, and real recoveries. Everything here was tested on GB10 Grace Blackwell systems (128 GB unified memory, ConnectX-7 QSFP fabric). No cloud, no staging environments, no sanitised happy paths.
 
-## The Guides
+→ **[dgx-spark](https://github.com/marksunner/dgx-spark)** is the wider workshop: inference engines, benchmarks, model comparisons, and things we've learned. This repo is the deployment-and-ops subset — the guides you reach for when it's time to build.
 
-### [GLM 5.2 Quad-Spark Deployment](glm-5.2-quad-spark-deployment.md)
+---
 
-Four DGX Sparks from shrink-wrap to serving **GLM 5.2** — all 671 billion parameters present (quantised, unpruned), 200K context, speculative decoding, on an OpenAI-compatible API. Covers the full journey: out-of-box gotchas, cluster networking, the 405 GB download, the custom vLLM build, and the four genuine bugs we hit along the way — with diagnosis, fixes, and the lessons that generalise. No prior GPU-cluster experience assumed.
+## Cluster Deployments
 
-### [MikroTik CRS812 RoCE Switch Setup](what-is-fabric.md)
+### ✨ GLM 5.2 — 4× DGX Spark
+Z.ai's 671B-parameter reasoning model across four nodes. All 256 experts active, 200K context, MTP speculative decoding — the complete journey from unboxing to first inference.
+→ **[Read the guide](glm-5.2-quad-spark-deployment.md)**
 
-The switch side of an RDMA fabric. If you're connecting more than two Sparks, you need a QSFP switch — and an unconfigured switch is the most convincing impostor of a broken cluster. This standalone guide covers what RDMA asks of a switch, the RouterOS commands that provide it (MTU 9000, PFC, ECN, DSCP), layer-by-layer verification, and a pitfall table where every row is a scar. Written for the CRS812, but the principles apply to any RoCE-capable switch.
+### 🔧 What Is Fabric? — MikroTik CRS812 RoCE Setup
+Building a lossless QSFP fabric for any multi-node DGX Spark cluster. RouterOS config, PFC/ECN, jumbo frames, and the pitfalls that cost us weeks on an earlier cluster.
+→ **[Read the guide](what-is-fabric.md)**
 
-## Standing on Shoulders
+### 💪 Qwen 122B — Single-Spark Agent Stack
+A complete autonomous AI agent on one DGX Spark: Qwen 3.5 122B (hybrid INT4+FP8) + Hermes + Honcho + monitoring. 41–47 tok/s.
+→ **[Read the guide](https://github.com/marksunner/dgx-spark-single-stack)**
 
-The GLM deployment is built directly on **[tonyd2wild's QuantTrio recipe](https://github.com/tonyd2wild/GLM-5.2-QuantTrio-200K-4x-DGX-Spark)** — a meticulous, battle-tested foundation that itself credits a whole community of DGX Spark pioneers. What these guides add is the road *around* the recipe: provisioning, networking, and our personal debugging journey. Full credits are in the deployment guide.
+### 🕯️ Step 3.7 Flash — Single Spark
+198B MoE, llama.cpp Q4_K_S GGUF, 27 tok/s, 128K context with vision. The simplest path to a big model on one box.
+→ **[Read the guide](https://github.com/marksunner/dgx-spark-step37-flash)**
 
-## Contributing
+### ⚡ Step 3.7 Flash — Dual Spark
+Same model, full 262K native context. vLLM TP=2 over RoCE RDMA, 18.5 tok/s. Docker device permissions, NCCL config, and everything that didn't work.
+→ **[Read the guide](https://github.com/marksunner/dgx-spark-step37-dual)**
 
-Feedback, corrections, and war stories are very welcome — open an issue or a PR. If one of these guides saved you a day (or cost you one because something has drifted out of date), we'd like to hear about it.
+### 🐋 DeepSeek V4 Flash — Dual Spark Benchmark
+284B MoE across two Sparks. 12.4 tok/s (this benchmark is superseded by Tony's 1M-context recipe — kept up for historical reference).
+→ **[Read the guide](https://github.com/marksunner/dgx-spark-vllm-tp-benchmark)**
+
+---
+
+## Tools
+
+**[`preflight.sh`](preflight.sh)** — Zero-dependency script that verifies RoCE GID indices match your launch configuration before every cluster launch. The GID table shifts after a reboot; this catches it. Run `./preflight.sh --fix && ./launch-castle.sh` and sleep easy.
+
+---
+
+## Credits
+
+The GLM 5.2 guide is built on **[tonyd2wild's QuantTrio recipe](https://github.com/tonyd2wild/GLM-5.2-QuantTrio-200K-4x-DGX-Spark)**. That recipe, in turn, stands on the work of **CosmicRaisins** (Triton kernels), **Zatz** (QuantTrio checkpoint proving), **back199640** (performance tuning), **ciprianveg** (baked-mod scripts), **eugr** (container build harness), and **QuantTrio** (the checkpoint itself). Full acknowledgements in the guide.
+
+---
+
+## License
+
+Apache 2.0 — see [LICENSE](LICENSE).
