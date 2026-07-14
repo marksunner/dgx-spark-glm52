@@ -14,6 +14,9 @@ The main event. From shrink-wrap to serving: OOBE setup, cluster networking, cus
 ### 🔧 [What Is Fabric?](what-is-fabric.md)
 Companion guide: building a lossless RoCE fabric with a MikroTik CRS812 QSFP switch. Starts from first principles (what is RDMA? why does it hate dropped packets?), covers the RouterOS config step by step, and ends with verification and a pitfall table where every row is a scar. Standalone — usable for any multi-Spark cluster, not just GLM.
 
+### 🔒 [GLM 5.2 Stability Fixes](glm-5.2-stability-fixes.md)
+Field report: diagnosing and fixing a reproducible NCCL deadlock with MTP speculative decoding. If your cluster serves 3–5 requests then silently hangs at 96% GPU — this is the guide. Covers root cause (cudagraph rank desync + async-scheduling MTP races + NCCL NVLS), a copy-paste fix, and a step-by-step recovery ladder from 15 → 23 tok/s stable.
+
 ### 🛡️ [preflight.sh](preflight.sh)
 Pre-launch GID index validator. The RoCE GID table shifts after a reboot; this script catches it before NCCL fails silently. Run `./preflight.sh --fix && ./launch-castle.sh` after any power cycle.
 
