@@ -14,6 +14,9 @@ The main event. From shrink-wrap to serving: OOBE setup, cluster networking, cus
 ### 🔧 [What Is Fabric?](what-is-fabric.md)
 Companion guide: building a lossless RoCE fabric with a MikroTik CRS812 QSFP switch. Starts from first principles (what is RDMA? why does it hate dropped packets?), covers the RouterOS config step by step, and ends with verification and a pitfall table where every row is a scar. Standalone — usable for any multi-Spark cluster, not just GLM.
 
+### 📡 [DGX Spark Multi-Node Deadlock Analysis](dgx-spark-multi-node-deadlock-analysis.md)
+Community root-cause analysis of the multi-node NCCL deadlock affecting all DGX Spark (GB10) clusters running tensor-parallel inference. Four-layer diagnosis: engine-level TP race, missing GPUDirect RDMA on stock Spark, GB10 UMA driver leak, and NCCL’s lack of collective timeout. Five specific asks of NVIDIA.
+
 ### 🔒 [GLM 5.2 Stability Fixes](glm-5.2-stability-fixes.md)
 Field report: diagnosing and fixing a reproducible NCCL deadlock with MTP speculative decoding. If your cluster serves 3–5 requests then silently hangs at 96% GPU — this is the guide. Covers root cause (cudagraph rank desync + async-scheduling MTP races + NCCL NVLS), a copy-paste fix, and a step-by-step recovery ladder from 15 → 23 tok/s stable.
 
